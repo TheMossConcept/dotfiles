@@ -12,7 +12,9 @@ return {
     ensure_installed = {
       "bash",
       "typescript",
+      "tsx",
       "diff",
+      "dockerfile",
       "html",
       "json",
       "jsonc",
