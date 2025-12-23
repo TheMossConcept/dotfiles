@@ -230,6 +230,6 @@ if [ -f '/home/niklas/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/home/
 if [ -f '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
 #Update dotfiles and passwords
-homeshick pull dotfiles
-homeshick link
-pass git pull
+# homeshick pull dotfiles
+# homeshick link
+# pass git pull
