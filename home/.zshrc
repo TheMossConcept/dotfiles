@@ -122,7 +122,11 @@ plugins=(git fzf zsh-autosuggestions tmuxinator)
 source $ZSH/oh-my-zsh.sh
 
 # Syncrhonise clipboards for sane copy/pasting
-autocutsel -f
+if command -v autocutsel
+then
+  autocutsel -f
+  echo "Ran autocutsel -f to syncrhonise clipboards with autocutsel present" 
+fi;
 
 # Use vi keybindings in the termianl because they are awesome!
 bindkey -v
@@ -217,10 +221,15 @@ alias research="todo sync && todo list --filter '@Research'"
 # Load Angular CLI autocompletion.
 # source <(ng completion script)
 
-. "$HOME/.local/bin/env"
+# . "$HOME/.local/bin/env"
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/home/niklas/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/home/niklas/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+#Update dotfiles and passwords
+# homeshick pull dotfiles
+# homeshick link
+# pass git pull
