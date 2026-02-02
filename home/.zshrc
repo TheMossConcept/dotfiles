@@ -233,3 +233,4 @@ if [ -f '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '
 homeshick pull dotfiles
 homeshick link
 pass git pull
+export PATH="$HOME/.local/bin:$PATH"
