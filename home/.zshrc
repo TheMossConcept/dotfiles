@@ -234,3 +234,5 @@ homeshick pull dotfiles
 homeshick link
 pass git pull
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
