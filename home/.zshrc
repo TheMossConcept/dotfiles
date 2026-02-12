@@ -229,8 +229,10 @@ if [ -f '/home/niklas/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/home/
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
-#Update dotfiles and passwords
-homeshick pull
-homeshick link
-pass git push
-pass git pull
+# TODO: Make the below only happen on first start-up!
+
+# Update dotfiles and passwords
+# homeshick pull
+# homeshick link
+# pass git push
+# pass git pull
