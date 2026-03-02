@@ -240,7 +240,8 @@ if [ -f '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '
 # pass git pull
 
 # bun completions
-[ -s "/home/niklas/.bun/_bun" ] && source "/home/niklas/.bun/_bun"
+<<<<<<< HEAD
+[ -s "~/.bun/_bun" ] && source "~/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
