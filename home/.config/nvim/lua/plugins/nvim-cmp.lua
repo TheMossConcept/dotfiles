@@ -53,6 +53,15 @@ return {
       matching = { disallow_symbol_nonprefix_matching = false },
     })
 
+    -- Use vim-dadbod-completion for SQL filetypes
+    cmp.setup.filetype({ "sql", "mysql", "plsql" }, {
+      sources = cmp.config.sources({
+        { name = "vim-dadbod-completion" },
+      }, {
+        { name = "buffer" },
+      }),
+    })
+
     -- Advertise cmp capabilities to all LSP servers
     local capabilities = require("cmp_nvim_lsp").default_capabilities()
     vim.lsp.config("*", { capabilities = capabilities })
