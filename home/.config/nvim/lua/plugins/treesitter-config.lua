@@ -18,6 +18,7 @@ return {
       "html",
       "json",
       "jsonc",
+      "http",
       "lua",
       "luadoc",
       "markdown",
