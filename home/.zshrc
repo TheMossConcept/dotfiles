@@ -238,3 +238,10 @@ if [ -f '/home/niklas/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '
 # homeshick link
 # pass git push
 # pass git pull
+
+# bun completions
+[ -s "/home/niklas/.bun/_bun" ] && source "/home/niklas/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

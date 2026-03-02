@@ -17,6 +17,9 @@ return {
       enable_fastapply = true,
     },
     -- for example
+    input = {
+      provider = "dressing"
+    },
     provider = "claude",
     providers = {
       claude = {

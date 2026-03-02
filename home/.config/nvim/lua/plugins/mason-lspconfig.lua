@@ -17,11 +17,13 @@ return {
       config = function(_, opts)
         require("mason").setup(opts)
 
+        --[[
         vim.api.nvim_create_autocmd("BufWritePost", {
           group = group,
           pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
           command = ":Prettier"
         })
+        ]]
       end,
     },
     { "neovim/nvim-lspconfig",
