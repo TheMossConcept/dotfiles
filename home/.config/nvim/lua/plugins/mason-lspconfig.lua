@@ -26,12 +26,6 @@ return {
         ]]
       end,
     },
-    { "neovim/nvim-lspconfig",
-    --[[ opts = function()
-      local keys = require("Lazyvim.plugins.lsp.keymaps").get()
-      keys[#keys+1] = { "gd", vim.lsp.buf.implementation }
-    end,
-    ]]
-    },
+    { "neovim/nvim-lspconfig" },
   },
 }
