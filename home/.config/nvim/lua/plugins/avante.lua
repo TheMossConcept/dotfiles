@@ -20,7 +20,6 @@ return {
     input = {
       provider = "dressing"
     },
-    provider = "claude",
     providers = {
       claude = {
         endpoint = "https://api.anthropic.com",
