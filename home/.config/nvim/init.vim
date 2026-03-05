@@ -3,31 +3,14 @@ let maplocalleader="\\"
 
 let g:vimsyn_embed = 'lPr'  " support embedded lua, python and ruby
 
-" TODO: Add color scheme, vimspector, tree-sitter (fixes all syntax
-" highlighting) and a CoC alternative to lazy neovim and we should be good
-" to go. Also, 
-
 call plug#begin('~/.vim/plugged')
 " The color scheme I currently use
 Plug 'dikiaap/minimalist'
-" Debugging
-Plug 'puremourning/vimspector'
 
 filetype plugin indent on
-"TODO: Customizing syntax highlighting
 
-" autocmd BufRead *.tsx set syntax=typescript
 call plug#end()
 
-
-" Debugger - Customize later!
-"let g:vimspector_enable_mappings = 'HUMAN'
-"
-"" for normal mode - the word under the cursor
-"nmap <leader>di <Plug>VimspectorBalloonEval
-"" for visual mode, the visually selected text
-"xmap <leader>di <Plug>VimspectorBalloonEval
-"
 colorscheme minimalist
 
 lua require('init')
