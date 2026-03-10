@@ -17,13 +17,20 @@ return {
       config = function(_, opts)
         require("mason").setup(opts)
 
+        vim.opt.exrc = true
+
         local group = vim.api.nvim_create_augroup("FormatOnSave", { clear = true })
         vim.api.nvim_create_autocmd("BufWritePost", {
           group = group,
           pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
           callback = function()
             local file = vim.fn.expand("%:p")
-            vim.fn.system({ "prettier", "--write", file })
+            local formatter = vim.g.project_formatter or "prettier"
+            if formatter == "biome" then
+              vim.fn.system({ "npx", "@biomejs/biome", "format", "--write", file })
+            else
+              vim.fn.system({ "prettier", "--write", file })
+            end
             vim.cmd("edit")
           end,
         })

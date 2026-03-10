@@ -90,9 +90,8 @@ let g:loaded_perl_provider = 0
 :vnoremap <leader>' <esc>`<i'<esc>`>a'
 :vnoremap <leader>" <esc>`<i"<esc>`>a"
 
-" Easier switching back and forth between buffers 
+" Easier switching back and forth between buffers
 :nnoremap <leader>n :bn<CR>
-:nnoremap <leader>p :bp<CR>
 
 " Easier access to normal mode
 :inoremap jk <esc>
