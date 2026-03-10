@@ -143,10 +143,8 @@ wget https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/t
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-# Needed to fzf.vim (fussy finding in vim) work.
-yay -Sy --noconfirm fzf
-yay -Sy --noconfirm the_silver_searcher
-yay -Sy --noconfirm ripgrep
+# Needed to make lua_ (fussy finding in vim) work.
+yay -Sy --noconfirm rg
 
 # Set up neovim
 yay -Sy --noconfirm neovim
@@ -189,6 +187,9 @@ su niklas --session-command "yay -Si --noconfirm google-chrome"
 
 # Install Todoist CLI
 yay -Sy todoist
+
+# Install databases
+yay -Sy postgresql
 
 # Set up sensible fonts. The font itself should be set in .Xresources which is symlinked by homeshick
 pacman -Sy --noconfirm fontconfig
