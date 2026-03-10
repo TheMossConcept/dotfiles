@@ -52,7 +52,7 @@ fpath=($HOME/.homesick/repos/homeshick/completions $fpath)
 # Setup nvm on Mac OS X with homebrew
 # Set up the path to include everything I need from Python to nvim to binaries in various locations. Remember to clean this up from time to time!
 export ANDROID_PLATFORM_TOOLS='/Users/niklasmoss/Library/Android/sdk/platform-tools/' 
-export PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:/usr/local/bin/nvim-osx64/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/$HOME/.homesick/repos/homeshick/bin:/opt/google/chrome:/home/niklas/.local/share/gem/ruby/3.4.0/bin:$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:/usr/local/bin/nvim-osx64/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/$HOME/.homesick/repos/homeshick/bin:/opt/google/chrome:/home/niklas/.local/share/gem/ruby/3.4.0/bin:$HOME/.local/bin:/opt/homebrew/opt/postgresql@18/bin:$PATH
 
 # NB! NVM needs to be the last command to modify the path, otherwise, it'll always default to system, see https://github.com/nvm-sh/nvm/issues/1184 
 

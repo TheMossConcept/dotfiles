@@ -35,7 +35,19 @@ return {
         },
       }
 
+      dap.adapters["bun"] = {
+        type = 'server',
+        host = 'localhost',
+        port = 6499,
+      }
+
       dap.configurations["typescript"] = {
+        {
+          type = 'bun',
+          request = 'attach',
+          name = 'Attach to Bun',
+          cwd = "${workspaceFolder}",
+        },
         {
           type = 'pwa-node',
           request = 'attach',
