@@ -17,13 +17,16 @@ return {
       config = function(_, opts)
         require("mason").setup(opts)
 
-        --[[
+        local group = vim.api.nvim_create_augroup("FormatOnSave", { clear = true })
         vim.api.nvim_create_autocmd("BufWritePost", {
           group = group,
           pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
-          command = ":Prettier"
+          callback = function()
+            local file = vim.fn.expand("%:p")
+            vim.fn.system({ "prettier", "--write", file })
+            vim.cmd("edit")
+          end,
         })
-        ]]
       end,
     },
     { "neovim/nvim-lspconfig" },
