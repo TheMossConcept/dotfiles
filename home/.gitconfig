@@ -24,3 +24,5 @@
 	autoSetupRemote = true
 [push]
 	autoSetupRemote = true
+[safe]
+	directory = /opt/yay-bin
