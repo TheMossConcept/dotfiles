@@ -56,17 +56,15 @@ if _pass_cache_stale "$_PASS_CACHE_FILE"; then
     _TAVILY="$(pass show api_keys/TAVILY_API_KEY 2>/dev/null)"
     _MORPH="$(pass show api_keys/MORPH_API_KEY 2>/dev/null)"
     _ANTHROPIC="$(pass show api_keys/ANTHROPIC_API_KEY 2>/dev/null)"
-    _DOCKER_PAT="$(pass show AI_development_team/DockerHubPAT 2>/dev/null)"
     cat > "$_PASS_CACHE_FILE" <<CACHE_EOF
 export OPENAI_API_KEY="$_OPENAI"
 export TAVILY_API_KEY="$_TAVILY"
 export MORPH_API_KEY="$_MORPH"
 export AVANTE_ANTHROPIC_API_KEY="$_ANTHROPIC"
-export _DOCKER_HUB_PAT="$_DOCKER_PAT"
 CACHE_EOF
     chmod 600 "$_PASS_CACHE_FILE"
     rmdir "$_PASS_CACHE_DIR/populating.lock"
-    unset _OPENAI _TAVILY _MORPH _ANTHROPIC _DOCKER_PAT
+    unset _OPENAI _TAVILY _MORPH _ANTHROPIC
   fi
 fi
 
