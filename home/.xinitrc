@@ -36,11 +36,8 @@ fi
 pipewire &
 pipewire-pulse &
 
-
-# Display screen saver and prevents the screen from going blank
+# Disable screen saver and screen blanking
 xset -dpms
 xset s off
 
-twm &
-xclock -geometry 50x50-1+1 &
 exec i3

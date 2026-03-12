@@ -3,23 +3,13 @@ let maplocalleader="\\"
 
 let g:vimsyn_embed = 'lPr'  " support embedded lua, python and ruby
 
-call plug#begin('~/.vim/plugged')
-" The color scheme I currently use
-Plug 'dikiaap/minimalist'
-
-filetype plugin indent on
-
-call plug#end()
-
-colorscheme minimalist
-
 lua require('init')
 
-" personilzation here
+" personalization
 set nowrap
 set shiftround
 set expandtab
-set tabstop=2 
+set tabstop=2
 set shiftwidth=2
 
 set autoread
@@ -27,9 +17,6 @@ set statusline="%f%m%r%h%w [%Y] [0x%02.2B]%< %F%=%4v,%4l %3p%% of %L"
 
 set number
 set splitbelow
-let g:syntastic_typescript_checkers = ['tslint', 'tsc']
-let g:syntastic_cs_checkers = ['code_checker']
-let g:rustfmt_autosave = 1
 
 " Disable providers we don't need
 let g:loaded_ruby_provider = 0
@@ -38,17 +25,15 @@ let g:loaded_perl_provider = 0
 " Clear highlighting after search
 :nnoremap <leader>c :noh<CR>
 
-" Use + and - to move codelines up and down - I don't use + and - default
-" functionality anyway so skip leader to make them faster and easier to use
+" Use + and - to move codelines up and down
 :nnoremap + ddp
 :nnoremap - ddkP
 
 " Make newlines without entering insert mode
 :nnoremap <leader>o o<esc>
-:nnoremap <leader>O O<esc> 
+:nnoremap <leader>O O<esc>
 
-" Make working with windows easier  <Ctrl>ws
-" :nnoremap <leader>| :wimcmd s<CR>
+" Window management
 :nnoremap <leader><Bar> :wincmd v<CR>
 :nnoremap <leader>_ :wincmd s<CR>
 :nnoremap <leader>x :wincmd q<CR>
@@ -59,14 +44,13 @@ let g:loaded_perl_provider = 0
 :nnoremap <leader>j :wincmd j<CR>
 :nnoremap <leader>k :wincmd k<CR>
 
-" Getting windows to be full screen using tabs and working with tabs in
-" general
+" Tab management
 :nnoremap <leader>ts :tab split<CR>
 :nnoremap <leader>tc :tabc<CR>
-:nnoremap <leader>t gt 
+:nnoremap <leader>t gt
 :nnoremap <leader>T gT
 
-" Easy copy to clipboard 
+" Easy copy to clipboard
 :nnoremap cy "+y
 :nnoremap cyy "+yy
 :nnoremap cY "+Y
@@ -97,7 +81,7 @@ let g:loaded_perl_provider = 0
 :inoremap jk <esc>
 :inoremap <esc> <nop>
 
-" Disable keys that I should not be using
+" Disable arrow keys to enforce hjkl
 :nnoremap <left> <nop>
 :nnoremap <right> <nop>
 :nnoremap <up> <nop>
@@ -107,17 +91,3 @@ let g:loaded_perl_provider = 0
 :inoremap <right> <nop>
 :inoremap <up> <nop>
 :inoremap <down> <nop>
-:inoremap <bs> <nop>
-
-" Autocommands to set filetypes
-:autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
-:autocmd BufNewFile,BufRead *.ts set filetype=typescript
-
-" Autocommands for specific filetypes
-:autocmd FileType tsx nnoremap <buffer> <localleader>c I//<space>
-:autocmd FileType tsx nnoremap <buffer> <localleader>mc I/*<space>
-:autocmd FileType tsx nnoremap <buffer> <localleader>xc I{/*<space>
-
-" Abbreviations
-:iabbrev co const
-:iabbrev im import
