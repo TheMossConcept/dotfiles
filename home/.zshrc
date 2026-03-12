@@ -181,12 +181,6 @@ plugins=(git fzf zsh-autosuggestions tmuxinator)
 
 source $ZSH/oh-my-zsh.sh
 
-# Syncrhonise clipboards for sane copy/pasting
-if command -v autocutsel
-then
-  autocutsel -f
-  echo "Ran autocutsel -f to syncrhonise clipboards with autocutsel present" 
-fi;
 
 # Use vi keybindings in the termianl because they are awesome!
 bindkey -v
@@ -206,7 +200,7 @@ alias gc=gcloud
 alias k=kubectl
 alias clean='rm -rf node_modules package-lock.json yarn.lock'
 # This is seriously awesome! Creates a GitHub PR from your current branch towards master and copies the link of it to your clipboard 
-alias pr='gh pr create --fill | xsel -p -s -b'
+alias pr='gh pr create --fill | cb-copy'
 alias diff="git diff ':!*.lock*'"
 alias c=clear
 alias tx=tmuxinator

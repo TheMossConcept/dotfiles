@@ -1,0 +1,7 @@
+#!/bin/sh
+# Unified clipboard copy — reads stdin, writes to system clipboard.
+# Works on macOS (pbcopy) and Linux/X11 (xclip).
+case "$(uname)" in
+  Darwin) exec pbcopy ;;
+  *)      exec xclip -selection clipboard ;;
+esac

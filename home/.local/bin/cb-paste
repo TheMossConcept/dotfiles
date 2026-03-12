@@ -1,0 +1,7 @@
+#!/bin/sh
+# Unified clipboard paste — writes system clipboard to stdout.
+# Works on macOS (pbpaste) and Linux/X11 (xclip).
+case "$(uname)" in
+  Darwin) exec pbpaste ;;
+  *)      exec xclip -selection clipboard -o ;;
+esac

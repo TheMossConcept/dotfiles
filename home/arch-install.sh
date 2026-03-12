@@ -116,8 +116,8 @@ yay -Sy --noconfirm python-certifi
 
 yay -S --noconfirm openssl
 
-# Set up xsel for clipboard tool
-yay -Sy --noconfirm xsel
+# Set up xclip for clipboard tool (used by cb-copy/cb-paste wrappers)
+yay -Sy --noconfirm xclip
 
 # Set up tmux
 yay -Sy --noconfirm tmux 
@@ -174,8 +174,6 @@ pacman -Sy --noconfirm extra/xorg-mkfontscale
 pacman -Sy --noconfirm ttf-meslo-nerd-font-powerlevel10k
 fc-cache -f -v
 
-# Install autocutsel to synchronise clipboards
-yay -Sy autocutsel
 
 # Turn the TTF directory into a font dir for use by X11!
 cd /usr/share/fonts/TTF
