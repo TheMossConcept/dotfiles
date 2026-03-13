@@ -60,6 +60,9 @@ su niklas
 # Update all packages using yay
 yay -Syu --devel --timeupdate --noconfirm
 
+# Set up claude code
+curl -fsSL https://claude.ai/install.sh | bash
+
 # Install docker (NB! Only works when systemd is available which is not the case in a Docker container!)
 yay -Sy --noconfirm docker
 yay -Sy --noconfirm docker-buildx
@@ -71,10 +74,20 @@ systemctl enable docker.service
 
 yay -Sy --noconfirm docker-compose
 
-# Set up credential manager to enable docker login
+# Set up credential manager to enable docker login and access to secrets
 yay -Sy --noconfirm docker-credential-pass
 yay -Sy --noconfirm pass
 yay -Sy --noconfirm gnupg
+
+# Set up secret store
+su
+gpg --import pass-key.asc
+# TODO: Verify that the id of the key is correct!
+echo -e "5\ny\nsave\n" | gpg --command-fd 0 --edit-key D651D2F437AD293D65F4BEB85B156575468E0A26 trust
+su niklas
+pass init D651D2F437AD293D65F4BEB85B156575468E0A26 
+pass git init
+pass git remote add origin git@github.com:TheMossConcept/Secrets.git
 
 # Install pinentry to remember the lastpass master password
 yay -Sy --noconfirm pinentry
@@ -87,11 +100,23 @@ yay -Sy --noconfirm openssh
 ssh-keygen -t ed25519 -C "niklas@themossconcept.com"
 eval "$(ssh-agent -s)"
 
+# Set up openssh access through other machines - we need to be root to do this
+cat macbook-air-public-key.pub >> ~/.ssh/authorized_keys
+su
+echo PasswordAuthentication no >> /etc/ssh/sshd_config
+echo PubkeyAuthentication yes >> /etc/ssh/sshd_config
+systemctl start sshd
+systemctl enable sshd
+su niklas
+
 # Install GitHub CLI and authenticate to gain access to your repos including your dotfiles
 yay -Sy --noconfirm github-cli
 # We need to be root in order to login to lastpass and use it
 lpass login niklas.noerregaard@gmail.com 
-lpass show --notes 6835548308542009880 | gh auth login --with-token
+lpass show --notes 6835548308542009880 | gh auth login --with-toke
+
+# Pull secrets after having authenticated with GitHub
+pass git pull
 
 # Intall homeshick to access your configuration files
 git clone https://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
