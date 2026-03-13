@@ -12,6 +12,10 @@ XTerm*.scrollBar: true
 UXTerm*.rightScrollBar: true 
 XTerm*.rightScrollBar: true 
 
+# Shift+Insert pastes from CLIPBOARD (not PRIMARY) for consistent copy/paste
+UXTerm.vt100.translations: #override Shift <KeyPress> Insert: insert-selection(CLIPBOARD)
+XTerm.vt100.translations: #override Shift <KeyPress> Insert: insert-selection(CLIPBOARD)
+
 # Fix backspace on UXTerm and XTerm
 UXTerm.vt100.backarrowKey: false
 UXTerm.ttyModes: erase ^?

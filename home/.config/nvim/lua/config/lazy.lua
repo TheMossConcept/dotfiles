@@ -25,7 +25,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   -- {"nvim-treesitter/nvim-treesitter", branch = 'main', lazy = false, build = ":TSUpdate" },
   spec = {
-    -- import your plugins
+    { "dikiaap/minimalist", lazy = false, priority = 1000, config = function() vim.cmd("colorscheme minimalist") end },
     { import = "plugins" },
   },
   -- Configure any other settings here. See the documentation for more details.

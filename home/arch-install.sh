@@ -1,11 +1,16 @@
-# NB! BEFORE doing anything else, remember to set up systemd-networkd and systemd-resolved. Install, enable and start in systemctl.
-# ALSO REMEMBER the following content in /etc/systemd/network/wired.network
+# Setup up DHCP for DNS resolution so I can access  
+cat << 'EOF' > /etc/systemd/network/20-wired.network
+[Match]
+Name=en*
 
-# [Match]
-# Name=eno1
+[Network]
+DHCP=yes
+EOF
 
-# [Network]
-# DHCP=yes
+systemctl enable --now systemd-networkd
+systemctl enable --now systemd-resolved
+
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Update pacman
 pacman -Sy --noconfirm
@@ -35,11 +40,7 @@ pacman -Sy --noconfirm sed
 # Add user that can work with sudo
 useradd -m -G wheel -s /bin/bash niklas
 passwd niklas
-# NB! This line has been known to change across different versions of Arch and diferent versions of keyring. If you get an 
-# erro about the user not being in sudoers, check the file manually.
-# This line number should work with the Arch version that is used in the Arch Linux
-# docker image with image ID 1105a6ef0052. Other known line numbers to work include 85 and 84
-sed -i '108s/# //g' /etc/sudoers # Add wheel users with passwords to sudoers. TODO: Find a better way to do this! 
+sed -i 's/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/g' /etc/sudoers
 visudo -c # Check that the sudoers file is still valid
 
 # Install yay to access all community packages
@@ -53,6 +54,8 @@ su niklas --session-command "makepkg -si --noconfirm"
 
 # Go home again
 cd ~
+# Ensure we are now running as user niklas so all our setup wouldn't be done for root but rather or niklas 
+su niklas
 
 # Update all packages using yay
 yay -Syu --devel --timeupdate --noconfirm
@@ -73,19 +76,6 @@ yay -Sy --noconfirm docker-credential-pass
 yay -Sy --noconfirm pass
 yay -Sy --noconfirm gnupg
 
-# Set up Kubernetes. Both gcloud config and kube config is in homeshick
-yay -Sy --noconfirm kubectl
-curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
-tar -xf google-cloud-cli-linux-x86_64.tar.gz
-./google-cloud-sdk/install.sh
-source ~/.zshrc
-gcloud components install gke-gcloud-auth-plugin
-
-# Generate key in gnupg
-# Do pass init -- key -- with the key just generated (use same password as for LastPass
-# Change credsStore in ~/.docker/config.json to be pass instead of desktop
-# Do Docker login with the password from docker hub
-
 # Install pinentry to remember the lastpass master password
 yay -Sy --noconfirm pinentry
 
@@ -101,18 +91,15 @@ eval "$(ssh-agent -s)"
 yay -Sy --noconfirm github-cli
 # We need to be root in order to login to lastpass and use it
 lpass login niklas.noerregaard@gmail.com 
-lpass show --notes 5561560319192977980 | gh auth login --with-token
+lpass show --notes 6835548308542009880 | gh auth login --with-token
 
 # Intall homeshick to access your configuration files
 git clone https://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
 printf '\nsource "$HOME/.homesick/repos/homeshick/homeshick.sh"' >> $HOME/.bashrc
 source $HOME/.bashrc
 
-homeshick clone https://github.com/Nnoerregaard/dotfiles.git
+homeshick clone https://github.com/TheMossConcept/dotfiles.git
 homeshick link
-
-# Login to company GitHub to be able to access work repos
-lpass show --notes 6835548308542009880 | gh auth login --with-token
 
 # Set up node (needed for neovim)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
@@ -120,7 +107,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
 source $HOME/.nvm/nvm.sh
 nvm install --lts
 npm install -g npm # Update npm to latest version
-npm install -g neovim # Link our installed node to neovim
+npm install -g neovim # Install neovim through npm so it is linked to 
 
 # Set up Python needed for neovim, VPN and loads of other stuff 
 yay -Sy --noconfirm python311
@@ -129,8 +116,8 @@ yay -Sy --noconfirm python-certifi
 
 yay -S --noconfirm openssl
 
-# Set up xsel for clipboard tool
-yay -Sy --noconfirm xsel
+# Set up xclip for clipboard tool (used by cb-copy/cb-paste wrappers)
+yay -Sy --noconfirm xclip
 
 # Set up tmux
 yay -Sy --noconfirm tmux 
@@ -139,20 +126,11 @@ mkdir /usr/local/share/zsh
 mkdir /usr/local/share/zsh/site-functions
 wget https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.zsh -O /usr/local/share/zsh/site-functions/_tmuxinator
 
-# This is to make VimPlug work.
-sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-
 # Needed to make lua_ (fussy finding in vim) work.
 yay -Sy --noconfirm rg
 
 # Set up neovim
 yay -Sy --noconfirm neovim
-# Remember to run PlugInstall and CocInstall on the first neovim run. This hasn't been tested yet!
-nvim --headless +'PlugInstall --sync' +qa  
-nvim --headless +CocInstall +qa
-# This last one is needed to make Denite work
-nvim --headless +UpdateRemotePlugins +qa
 
 export EDITOR=nvim
 
@@ -168,8 +146,7 @@ sudo systemctl enable keyd && sudo systemctl start keyd
 # Install X11 (consider switching to Waryland!) and i3 to acheive better colors, fonts and to use chrome
 pacman -Sy --noconfirm xorg-server
 pacman -Sy --noconfirm xorg-xinit
-# TODO: This needs to change if the CPU changes. Find a way to automate lspci -v | grep -A1 -e VGA -e 3D  
-pacman -Sy --noconfirm xf86-video-intel
+# TODO: The proper visual driver should have been installed during arch installation. If that is not the case, displays wouldn't work!
 pacman -Sy virtualbox
 pacman -Sy --noconfirm xterm
 pacman -Sy --noconfirm xorg-xrandr
@@ -183,7 +160,7 @@ yay -Sy --noconfirm mons
 yay -Sy --noconfirm maim
 
 # Install google chrome
-su niklas --session-command "yay -Si --noconfirm google-chrome"
+su niklas --session-command "yay -Sy --noconfirm firefox"
 
 # Install Todoist CLI
 yay -Sy todoist
@@ -197,8 +174,6 @@ pacman -Sy --noconfirm extra/xorg-mkfontscale
 pacman -Sy --noconfirm ttf-meslo-nerd-font-powerlevel10k
 fc-cache -f -v
 
-# Install autocutsel to synchronise clipboards
-yay -Sy autocutsel
 
 # Turn the TTF directory into a font dir for use by X11!
 cd /usr/share/fonts/TTF
@@ -210,5 +185,4 @@ yay -Sy --noconfirm zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc"
 
 # Start the final terminal after configuration is set up
-zsh -c "source ~/.zshrc && su niklas"
-
+zsh -c "source ~/.zshrc && startx && echo SETUP COMPLETE"

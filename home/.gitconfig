@@ -1,26 +1,20 @@
-# This is Git's per-user configuration file.
 [user]
-# Please adapt and uncomment the following lines:
 	name = Niklas Moss
 	email = niklas@themossconcept.com
 [merge]
 	tool = nvim
 [mergetool]
-  keepBackup = false
-[mergetool "p4mergetool"]
-	cmd = /Applications/p4merge.app/Contents/Resources/launchp4merge $PWD/$BASE $PWD/$REMOTE $PWD/$LOCAL $PWD/$MERGED
-	trustExitCode = false
-[mergetool "nvim"]
-  cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
-[mergetool]
 	keepBackup = false
+[mergetool "nvim"]
+	cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
 [url "git@bitbucket.org:"]
 	insteadOf = https://bitbucket.org/
 [init]
-	templatedir = /Users/niklasnorregaard/.git-templates
 	defaultBranch = main
 [pull]
 	rebase = false
 	autoSetupRemote = true
 [push]
 	autoSetupRemote = true
+[safe]
+	directory = /opt/yay-bin

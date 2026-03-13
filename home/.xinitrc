@@ -36,14 +36,8 @@ fi
 pipewire &
 pipewire-pulse &
 
-# Synchronise the PRIMARY and CLIPBOARD clipboards to seamlessly copy/paste between chrome, neovim and tmux
-autocutsel -s CLIPBOARD &
-autocutsel -s PRIMARY &
-
-# Display screen saver and prevents the screen from going blank
+# Disable screen saver and screen blanking
 xset -dpms
 xset s off
 
-twm &
-xclock -geometry 50x50-1+1 &
 exec i3
