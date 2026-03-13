@@ -28,24 +28,19 @@ return {
         host = 'localhost',
         port = '9229',
         executable = {
-          command = 'js-debug-adapter',
+          command = vim.fn.stdpath("data") .. '/mason/bin/js-debug-adapter',
           args = {
             '9229',
           },
         },
       }
 
-      dap.adapters["bun"] = {
-        type = 'server',
-        host = 'localhost',
-        port = 6499,
-      }
-
       dap.configurations["typescript"] = {
         {
-          type = 'bun',
+          type = 'pwa-node',
           request = 'attach',
           name = 'Attach to Bun',
+          websocketAddress = 'ws://localhost:6499/',
           cwd = "${workspaceFolder}",
         },
         {
