@@ -1,15 +1,14 @@
 return {
   "nvim-treesitter/nvim-treesitter",
+  branch = "main",
   version = false,
   build = ":TSUpdate",
   lazy = false,
-  opts = {
-    -- LazyVim config for treesitter
-    indent = { enable = true },
-    highlight = { enable = true },
-    folds = { enable = true },
-    lazy = false,
-    ensure_installed = {
+  config = function()
+    require("nvim-treesitter").setup()
+
+    -- Install parsers automatically
+    local ensure_installed = {
       "bash",
       "typescript",
       "tsx",
@@ -17,7 +16,6 @@ return {
       "dockerfile",
       "html",
       "json",
-      "jsonc",
       "http",
       "lua",
       "luadoc",
@@ -29,10 +27,30 @@ return {
       "vimdoc",
       "xml",
       "yaml",
-    },
-  },
-  config = function(_, opts)
-    require("nvim-treesitter.configs").setup(opts)
+    }
+
+    local installed = require("nvim-treesitter").get_installed()
+    local installed_set = {}
+    for _, lang in ipairs(installed) do
+      installed_set[lang] = true
+    end
+    local to_install = {}
+    for _, lang in ipairs(ensure_installed) do
+      if not installed_set[lang] then
+        table.insert(to_install, lang)
+      end
+    end
+    if #to_install > 0 then
+      require("nvim-treesitter").install(to_install)
+    end
+
+    -- Enable treesitter highlighting and indentation for all buffers
+    vim.api.nvim_create_autocmd("FileType", {
+      callback = function()
+        pcall(vim.treesitter.start)
+        vim.bo.indentexpr = "v:lua.require('nvim-treesitter').indentexpr()"
+      end,
+    })
 
     -- Earthy, calming TreeSitter highlight overrides
     -- Palette: warm browns, muted greens, soft clay, sage, stone, ochre
@@ -110,4 +128,3 @@ return {
     hi("@include",              { fg = "#b07856" })
   end
 }
-

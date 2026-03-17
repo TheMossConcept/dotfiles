@@ -36,8 +36,10 @@ fi
 pipewire &
 pipewire-pulse &
 
-# Disable screen saver and screen blanking
-xset -dpms
-xset s off
+# Disable screen saver, screen blanking, and DPMS
+/usr/bin/xset dpms 0 0 0
+/usr/bin/xset -dpms
+/usr/bin/xset s off
+/usr/bin/xset s noblank
 
 exec i3

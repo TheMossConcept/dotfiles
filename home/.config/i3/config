@@ -11,6 +11,8 @@
 
 set $mod Mod1
 
+default_orientation horizontal
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font pango:monospace 8
@@ -194,9 +196,9 @@ assign [class="Google-chrome"] $ws1
 assign [class="firefox"] $ws1
 assign [class="UXTerm"] $ws2
 
-# exec ./home/niklas/startup.sh 
+# exec ./home/niklas/startup.sh
 exec xrandr --output DisplayPort-2 --rotate left
 exec mons -e left
 exec firefox --first-startup https://mail.google.com/mail/u/2/#inbox https://mail.google.com/mail/u/1/#inbox
-exec firefox --new-window https://app.todoist.com/app/today 
+exec firefox --new-window https://app.todoist.com/app/today
 exec i3-sensible-terminal

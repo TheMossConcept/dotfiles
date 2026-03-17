@@ -25,58 +25,10 @@ if ! grep -q "^pinentry-program ${_PINENTRY}$" ~/.gnupg/gpg-agent.conf 2>/dev/nu
 fi
 unset _PINENTRY
 
-# Cache pass secrets to avoid GPG lock contention when multiple shells start simultaneously (e.g. tmux)
-_PASS_CACHE_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/pass-cache-$(id -u)"
-mkdir -p "$_PASS_CACHE_DIR" && chmod 700 "$_PASS_CACHE_DIR"
-_PASS_CACHE_FILE="$_PASS_CACHE_DIR/env"
-
-# Portable file age check (works on both macOS and Linux)
-_pass_cache_stale() {
-  [[ ! -f "$1" ]] && return 0
-  local mtime
-  if [[ "$(uname)" == "Darwin" ]]; then
-    mtime=$(stat -f %m "$1")
-  else
-    mtime=$(stat -c %Y "$1")
-  fi
-  (( $(date +%s) - mtime > 86400 ))
-}
-
-if _pass_cache_stale "$_PASS_CACHE_FILE"; then
-  # Use mkdir as a portable atomic lock (works on macOS + Linux, unlike flock)
-  if mkdir "$_PASS_CACHE_DIR/populating.lock" 2>/dev/null; then
-    _OPENAI="$(pass show api_keys/OPENAI_API_KEY 2>/dev/null)"
-    _TAVILY="$(pass show api_keys/TAVILY_API_KEY 2>/dev/null)"
-    _MORPH="$(pass show api_keys/MORPH_API_KEY 2>/dev/null)"
-    _ANTHROPIC="$(pass show api_keys/ANTHROPIC_API_KEY 2>/dev/null)"
-    _DOCKER_HUB_PAT="$(pass show AI_development_team/DockerHubPAT 2>/dev/null)"
-    cat > "$_PASS_CACHE_FILE" <<CACHE_EOF
-export OPENAI_API_KEY="$_OPENAI"
-export TAVILY_API_KEY="$_TAVILY"
-export MORPH_API_KEY="$_MORPH"
-export AVANTE_ANTHROPIC_API_KEY="$_ANTHROPIC"
-export _DOCKER_HUB_PAT="$_DOCKER_HUB_PAT"
-CACHE_EOF
-    chmod 600 "$_PASS_CACHE_FILE"
-    rmdir "$_PASS_CACHE_DIR/populating.lock"
-    unset _OPENAI _TAVILY _MORPH _ANTHROPIC _DOCKER_HUB_PAT
-  fi
-fi
-
-if [[ -f "$_PASS_CACHE_FILE" ]]; then
-  source "$_PASS_CACHE_FILE"
-  [[ -n "$_DOCKER_HUB_PAT" ]] && echo "$_DOCKER_HUB_PAT" | docker login -u niklasmoss --password-stdin 2>/dev/null
-  unset _DOCKER_HUB_PAT
-else
-  # Fallback if cache not yet populated by another shell
-  export OPENAI_API_KEY="$(pass show api_keys/OPENAI_API_KEY)"
-  export TAVILY_API_KEY="$(pass show api_keys/TAVILY_API_KEY)"
-  export MORPH_API_KEY="$(pass show api_keys/MORPH_API_KEY)"
-  export AVANTE_ANTHROPIC_API_KEY="$(pass show api_keys/ANTHROPIC_API_KEY)"
-  echo "$(pass show AI_development_team/DockerHubPAT)" | docker login -u niklasmoss --password-stdin
-fi
-unset -f _pass_cache_stale
-unset _PASS_CACHE_DIR _PASS_CACHE_FILE
+# Source secrets loaded once at login by systemd user service (load-secrets.service)
+_SECRETS_ENV="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/secrets-env"
+[[ -f "$_SECRETS_ENV" ]] && source "$_SECRETS_ENV"
+unset _SECRETS_ENV
 
 # For using avante zen mode
 alias avante='nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mode()end, 100)"'
