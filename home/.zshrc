@@ -12,18 +12,6 @@ export MYVIMRC=$HOME/.config/nvim/init.vim
 # Set the editor to neovim
 export EDITOR=nvim
 
-# Set OS-specific pinentry program for GPG
-if [[ "$(uname)" == "Darwin" ]]; then
-  _PINENTRY="/opt/homebrew/bin/pinentry-mac"
-else
-  _PINENTRY="/usr/bin/pinentry"
-fi
-if ! grep -q "^pinentry-program ${_PINENTRY}$" ~/.gnupg/gpg-agent.conf 2>/dev/null; then
-  sed -i.bak '/^pinentry-program /d' ~/.gnupg/gpg-agent.conf 2>/dev/null
-  echo "pinentry-program ${_PINENTRY}" >> ~/.gnupg/gpg-agent.conf
-  gpgconf --kill gpg-agent 2>/dev/null
-fi
-unset _PINENTRY
 
 # Source secrets loaded once at login by systemd user service (load-secrets.service)
 _SECRETS_ENV="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/secrets-env"
