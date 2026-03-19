@@ -1,5 +1,19 @@
 require("config.lazy")
 
+-- Use cb-copy/cb-paste for clipboard so tmux and neovim share the same clipboard tool
+vim.g.clipboard = {
+  name = 'cb-clipboard',
+  copy = {
+    ['+'] = 'cb-copy',
+    ['*'] = 'cb-copy',
+  },
+  paste = {
+    ['+'] = 'cb-paste',
+    ['*'] = 'cb-paste',
+  },
+  cache_enabled = 0,
+}
+
 -- To avoid vim resizing panes on maximising/minimising in tmux
 vim.o.equalalways = false
 
