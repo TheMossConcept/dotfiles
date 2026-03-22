@@ -110,6 +110,8 @@ plugins=(git fzf zsh-autosuggestions tmuxinator)
 
 source $ZSH/oh-my-zsh.sh
 
+alias remote="ssh niklas@192.168.178.137 -t \"tmux -u attach\""
+
 # Use vi keybindings in the terminal
 bindkey -v
 bindkey -s 'jk' '\e'
