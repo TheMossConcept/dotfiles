@@ -3,5 +3,5 @@
 # Works on macOS (pbcopy) and Linux/X11 (xclip).
 case "$(uname)" in
   Darwin) exec pbcopy ;;
-  *)      exec xclip -selection clipboard ;;
+  *)      exec xsel --clipboard --input ;;
 esac
