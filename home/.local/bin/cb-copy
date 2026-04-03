@@ -1,8 +1,9 @@
 #!/bin/sh
 # Unified clipboard copy — reads stdin, writes to system clipboard.
-# Works on macOS (pbcopy) and Linux/X11 (xclip/xsel).
-# Uses xclip over xsel because xsel's selection-ownership model can
-# cause the clipboard to go stale when its background process dies.
+# Works on macOS (pbcopy) and Linux/X11 (xsel).
+# Uses xsel over xclip because xclip forks a background process to hold
+# the X selection, which can hold PTY file descriptors and cause terminal
+# rendering issues in neovim.
 
 # Inside tmux, DISPLAY may be missing from the pane's environment even
 # though tmux knows it. Pull it from tmux's global environment.
@@ -12,14 +13,5 @@ fi
 
 case "$(uname)" in
   Darwin) exec pbcopy ;;
-  *)
-    if command -v xclip >/dev/null 2>&1; then
-      exec xclip -selection clipboard
-    elif command -v xsel >/dev/null 2>&1; then
-      exec xsel --clipboard --input
-    else
-      echo "cb-copy: no clipboard tool found (install xclip)" >&2
-      exit 1
-    fi
-    ;;
+  *)      exec xsel --clipboard --input ;;
 esac

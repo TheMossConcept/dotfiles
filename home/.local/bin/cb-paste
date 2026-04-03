@@ -1,16 +1,7 @@
 #!/bin/sh
 # Unified clipboard paste — writes system clipboard to stdout.
-# Works on macOS (pbpaste) and Linux/X11 (xclip/xsel).
+# Works on macOS (pbpaste) and Linux/X11 (xsel).
 case "$(uname)" in
   Darwin) exec pbpaste ;;
-  *)
-    if command -v xclip >/dev/null 2>&1; then
-      exec xclip -selection clipboard -o
-    elif command -v xsel >/dev/null 2>&1; then
-      exec xsel --clipboard --output
-    else
-      echo "cb-paste: no clipboard tool found (install xclip)" >&2
-      exit 1
-    fi
-    ;;
+  *)      exec xsel --clipboard --output ;;
 esac
