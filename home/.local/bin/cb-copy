@@ -1,7 +1,17 @@
 #!/bin/sh
 # Unified clipboard copy — reads stdin, writes to system clipboard.
-# Works on macOS (pbcopy) and Linux/X11 (xclip).
+# Works on macOS (pbcopy) and Linux/X11 (xsel).
+# Uses xsel over xclip because xclip forks a background process to hold
+# the X selection, which can hold PTY file descriptors and cause terminal
+# rendering issues in neovim.
+
+# Inside tmux, DISPLAY may be missing from the pane's environment even
+# though tmux knows it. Pull it from tmux's global environment.
+if [ -z "$DISPLAY" ] && command -v tmux >/dev/null 2>&1 && [ -n "$TMUX" ]; then
+  eval "$(tmux show-environment -s DISPLAY 2>/dev/null)" || true
+fi
+
 case "$(uname)" in
   Darwin) exec pbcopy ;;
-  *)      exec xclip -selection clipboard ;;
+  *)      exec xsel --clipboard --input ;;
 esac

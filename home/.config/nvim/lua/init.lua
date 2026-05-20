@@ -17,6 +17,9 @@ vim.g.clipboard = {
 -- To avoid vim resizing panes on maximising/minimising in tmux
 vim.o.equalalways = false
 
+-- Prevent Neo-tree (and other sidebars) from going blank when scrolling in adjacent splits
+vim.o.splitkeep = "screen"
+
 -- Workaround for diagnostics disappearing in insert mode causing the whole UI to continously jump around 
 vim.diagnostic.config({
     update_in_insert = true,

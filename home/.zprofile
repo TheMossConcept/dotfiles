@@ -1,3 +1,8 @@
+# Set DISPLAY for X11 tools (e.g. xclip used by pass -c) when Xorg is running
+if [[ -z "$DISPLAY" && "$(uname)" == "Linux" && -n "$(pgrep -x Xorg)" ]]; then
+  export DISPLAY=:0
+fi
+
 # Set macOS-specific pinentry program for GPG
 if [[ "$(uname)" == "Darwin" ]]; then
   sed -i.bak 's|^pinentry-program .*|pinentry-program /opt/homebrew/bin/pinentry-mac|' ~/.gnupg/gpg-agent.conf

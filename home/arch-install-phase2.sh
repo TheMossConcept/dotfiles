@@ -23,7 +23,7 @@ GPG_KEY_ID="$1"
 # Install dev tools
 yay -S --noconfirm \
     python311 python-pynvim python-certifi openssl \
-    xclip tmux tmuxinator ripgrep neovim \
+    xsel tmux tmuxinator ripgrep neovim \
     mons maim firefox todoist postgresql
 
 # Install keyd for keyboard remapping
