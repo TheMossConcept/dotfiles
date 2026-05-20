@@ -50,7 +50,8 @@ plugins=(git fzf zsh-autosuggestions tmuxinator)
 
 source $ZSH/oh-my-zsh.sh
 
-alias remote="ssh niklas@192.168.178.137 -t \"tmux -u attach\""
+alias remote="ssh niklas@bigarchlinuxdesktop.taila35639.ts.net -t \"tmux -u attach\""
+alias bugfix_bot="ssh bugfix-bot@bugfix-bot.taila35639.ts.net"
 
 # Use vi keybindings in the terminal
 bindkey -v
