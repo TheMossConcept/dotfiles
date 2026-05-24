@@ -190,7 +190,7 @@ bar {
 }
 
 # DO CUSTOM STARTUP
-workspace $ws1 output "DisplayPort-3"
+workspace $ws1 output "DisplayPort-1"
 workspace $ws2 output "DisplayPort-2"
 assign [class="Google-chrome"] $ws1
 assign [class="firefox"] $ws1
@@ -198,7 +198,7 @@ assign [class="UXTerm"] $ws2
 
 # exec ./home/niklas/startup.sh
 exec xrandr --output DisplayPort-2 --rotate left
-exec mons -e left
+exec mons -e right
 exec firefox --first-startup https://mail.google.com/mail/u/2/#inbox https://mail.google.com/mail/u/1/#inbox
 exec firefox --new-window https://app.todoist.com/app/today
 exec i3-sensible-terminal
