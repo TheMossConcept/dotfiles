@@ -95,3 +95,6 @@ if [ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/D
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# bun completions
+[ -s "/tmp/claude-1000/-home-niklas-code-barma-master/40c3154d-4505-4188-8881-5e101bac607c/scratchpad/bun-1.3.2/_bun" ] && source "/tmp/claude-1000/-home-niklas-code-barma-master/40c3154d-4505-4188-8881-5e101bac607c/scratchpad/bun-1.3.2/_bun"
