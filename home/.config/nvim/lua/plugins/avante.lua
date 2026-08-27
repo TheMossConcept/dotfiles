@@ -16,14 +16,16 @@ return {
     behaviour = {
       enable_fastapply = true,
     },
-    -- for example
-    input = {
-      provider = "dressing"
+    provider = "claude-code",
+    acp_providers = {
+      ["claude-code"] = {
+        command = "claude-code-acp",
+      },
     },
     providers = {
       claude = {
         endpoint = "https://api.anthropic.com",
-        model = "claude-opus-4-6",
+        model = "claude-fable-5",
         timeout = 30000, -- Timeout in milliseconds
         extra_request_body = {
           temperature = 0.25,
