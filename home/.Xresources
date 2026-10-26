@@ -7,10 +7,8 @@ UXTerm*vt100.foreground: white
 UXTerm*.background: black
 UXTerm*.foreground: white
 
-UXTerm*.scrollBar: true 
-XTerm*.scrollBar: true
-UXTerm*.rightScrollBar: true 
-XTerm*.rightScrollBar: true 
+UXTerm*.scrollBar: false
+XTerm*.scrollBar: false
 
 # Shift+Insert pastes from CLIPBOARD (not PRIMARY) for consistent copy/paste
 UXTerm.vt100.translations: #override Shift <KeyPress> Insert: insert-selection(CLIPBOARD)
