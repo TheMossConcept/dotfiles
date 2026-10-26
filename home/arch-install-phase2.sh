@@ -11,9 +11,25 @@ if tty -s; then export GPG_TTY="$(tty)"; fi
 
 # Install AUR packages (official packages are installed by arch-install.sh)
 yay -S --needed --noconfirm --removemake \
-    lastpass-cli docker-credential-pass mons todoist-bin python311 tmuxinator \
+    docker-credential-pass mons todoist-bin python311 tmuxinator \
     ttf-meslo-nerd-font-powerlevel10k \
     google-chrome infisical-bin railwayapp-cli mongodb-bin mongosh-bin
+
+# lastpass-cli < 1.6.2 pins LastPass's old TLS certificates and fails with "SSL peer certificate
+# or SSH remote key was not OK". Until the AUR package is updated, build 1.6.2 from its PKGBUILD
+LPASS_MIN_VERSION=1.6.2
+LPASS_SHA256=68d10a43a59d5aa376dc08a5624ef3ee405e40191fc3558f4db4043e7d1f7939
+LPASS_AUR_VERSION=$(curl -fsSL 'https://aur.archlinux.org/rpc/v5/info?arg[]=lastpass-cli' | jq -r '.results[0].Version')
+if [[ $(vercmp "$LPASS_AUR_VERSION" "$LPASS_MIN_VERSION") -ge 0 ]]; then
+    yay -S --needed --noconfirm --removemake lastpass-cli
+elif ! pacman -Q lastpass-cli &>/dev/null || [[ $(vercmp "$(pacman -Q lastpass-cli | cut -d' ' -f2)" "$LPASS_MIN_VERSION") -lt 0 ]]; then
+    LPASS_BUILD_DIR=$(mktemp -d)
+    git clone https://aur.archlinux.org/lastpass-cli.git "$LPASS_BUILD_DIR"
+    sed -i -e "s/^pkgver=.*/pkgver=$LPASS_MIN_VERSION/" -e 's/^pkgrel=.*/pkgrel=1/' \
+        -e "s/^sha256sums=.*/sha256sums=('$LPASS_SHA256')/" "$LPASS_BUILD_DIR/PKGBUILD"
+    (cd "$LPASS_BUILD_DIR" && makepkg -si --noconfirm --needed --rmdeps)
+    rm -rf "$LPASS_BUILD_DIR"
+fi
 
 # Set up claude code
 curl -fsSL https://claude.ai/install.sh | bash
