@@ -16,11 +16,15 @@ XTerm*.foreground: white
 UXTerm*.scrollBar: false
 XTerm*.scrollBar: false
 
-# Shift+Insert pastes from CLIPBOARD (not PRIMARY) for consistent copy/paste
-UXTerm.vt100.translations: #override Shift <KeyPress> Insert: insert-selection(CLIPBOARD)
-XTerm.vt100.translations: #override Shift <KeyPress> Insert: insert-selection(CLIPBOARD)
+! Shift+Insert and Ctrl+V paste from CLIPBOARD (not PRIMARY) for consistent copy/paste
+UXTerm.vt100.translations: #override \n\
+    Shift <KeyPress> Insert: insert-selection(CLIPBOARD) \n\
+    Ctrl <KeyPress> v: insert-selection(CLIPBOARD)
+XTerm.vt100.translations: #override \n\
+    Shift <KeyPress> Insert: insert-selection(CLIPBOARD) \n\
+    Ctrl <KeyPress> v: insert-selection(CLIPBOARD)
 
-# Fix backspace on UXTerm and XTerm
+! Fix backspace on UXTerm and XTerm
 UXTerm.vt100.backarrowKey: false
 UXTerm.ttyModes: erase ^?
 XTerm.vt100.backarrowKey: false
