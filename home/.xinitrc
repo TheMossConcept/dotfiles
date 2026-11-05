@@ -42,4 +42,7 @@ pipewire-pulse &
 /usr/bin/xset s off
 /usr/bin/xset s noblank
 
+# Disable the X bell
+/usr/bin/xset b off
+
 exec i3

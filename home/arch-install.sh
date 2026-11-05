@@ -19,13 +19,37 @@ as_user() { sudo -u "$USER_NAME" -H -- "$@"; }
 # Phase 1: Root setup (run as root)
 # =============================================================================
 
-# Setup up DHCP for DNS resolution
+# Setup up DHCP for DNS resolution on wired and wireless interfaces.
+# Lower route metric on wired so Ethernet is preferred when both are connected.
 cat << 'EOF' > /etc/systemd/network/20-wired.network
 [Match]
 Name=en*
 
 [Network]
 DHCP=yes
+
+[DHCPv4]
+RouteMetric=100
+
+[IPv6AcceptRA]
+RouteMetric=100
+EOF
+
+# iwd only handles association; networkd does addressing. IgnoreCarrierLoss keeps
+# addresses across brief WiFi drops and roaming between access points
+cat << 'EOF' > /etc/systemd/network/25-wireless.network
+[Match]
+Name=wl*
+
+[Network]
+DHCP=yes
+IgnoreCarrierLoss=3s
+
+[DHCPv4]
+RouteMetric=600
+
+[IPv6AcceptRA]
+RouteMetric=600
 EOF
 
 systemctl enable --now systemd-networkd
@@ -146,6 +170,9 @@ Section "Extensions"
     Option "DPMS" "false"
 EndSection
 EOF
+
+# Silence the motherboard PC speaker beep (it bypasses the sound card, so mute has no effect)
+echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 
 # tmuxinator zsh completion
 install -d /usr/local/share/zsh/site-functions
