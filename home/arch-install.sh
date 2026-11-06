@@ -52,6 +52,16 @@ RouteMetric=600
 RouteMetric=600
 EOF
 
+# By default wait-online waits for *every* managed link, so an unplugged Ethernet
+# port stalls boot (and docker.service, which needs network-online) for 2 minutes.
+# Consider the network online as soon as any interface (wired or wireless) is up.
+install -d /etc/systemd/system/systemd-networkd-wait-online.service.d
+cat << 'EOF' > /etc/systemd/system/systemd-networkd-wait-online.service.d/any.conf
+[Service]
+ExecStart=
+ExecStart=/usr/lib/systemd/systemd-networkd-wait-online --any
+EOF
+
 systemctl enable --now systemd-networkd
 systemctl enable --now systemd-resolved
 
@@ -168,6 +178,16 @@ EndSection
 
 Section "Extensions"
     Option "DPMS" "false"
+EndSection
+EOF
+
+# Natural (reversed) touchpad scrolling
+cat << 'EOF' > /etc/X11/xorg.conf.d/30-touchpad.conf
+Section "InputClass"
+    Identifier "touchpad"
+    MatchIsTouchpad "on"
+    Driver "libinput"
+    Option "NaturalScrolling" "true"
 EndSection
 EOF
 

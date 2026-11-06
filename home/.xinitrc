@@ -32,10 +32,6 @@ if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  unset f
 fi
 
-# Make sure audio works
-pipewire &
-pipewire-pulse &
-
 # Disable screen saver, screen blanking, and DPMS
 /usr/bin/xset dpms 0 0 0
 /usr/bin/xset -dpms
