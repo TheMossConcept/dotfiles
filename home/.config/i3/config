@@ -187,6 +187,19 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         status_command i3status
+        position bottom
+        font pango:monospace 11
+        separator_symbol " | "
+        colors {
+                background #1c1c1c
+                statusline #e4e4e4
+                separator  #6c6c6c
+                #                  border  background text
+                focused_workspace  #ffaf00 #ffaf00    #000000
+                active_workspace   #4e4e4e #4e4e4e    #ffffff
+                inactive_workspace #1c1c1c #1c1c1c    #a8a8a8
+                urgent_workspace   #ff5f5f #ff5f5f    #000000
+        }
 }
 
 # DO CUSTOM STARTUP
