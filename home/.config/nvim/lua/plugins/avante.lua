@@ -16,10 +16,15 @@ return {
     behaviour = {
       enable_fastapply = true,
     },
+    mappings = {
+      submit = {
+        insert = "<M-s>",
+      },
+    },
     provider = "claude-code",
     acp_providers = {
       ["claude-code"] = {
-        command = "claude-code-acp",
+        command = "claude-agent-acp",
       },
     },
     providers = {

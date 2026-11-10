@@ -1,0 +1,11 @@
+[Unit]
+Description=Restore DNS after a FortiClient VPN session ends without cleaning up
+After=systemd-resolved.service
+
+[Service]
+ExecStart=/usr/local/bin/forticlient-dns-restore
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

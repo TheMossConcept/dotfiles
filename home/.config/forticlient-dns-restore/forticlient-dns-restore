@@ -1,0 +1,41 @@
+#!/bin/bash
+# FortiClient replaces /etc/resolv.conf with a file pointing at the VPN's DNS servers and
+# only puts the original back on a clean disconnect. When the session is ended by the
+# gateway (e.g. its 10 hour limit) the VPN-only servers stay in place and every DNS lookup
+# times out until reboot. This watches the VPN interface and restores systemd-resolved's
+# stub resolv.conf once the VPN is gone.
+# Installed to /usr/local/bin by arch-install.sh; run by forticlient-dns-restore.service.
+set -euo pipefail
+
+RESOLV_CONF=${RESOLV_CONF:-/etc/resolv.conf}
+BACKUP=${BACKUP:-/etc/resolv.conf.forticlient.backup}
+STUB=${STUB:-/run/systemd/resolve/stub-resolv.conf}
+VPN_IF_PREFIX=${VPN_IF_PREFIX:-fctvpn}
+# Time to let link events settle, and FortiClient do its own restore, before checking
+SETTLE_SECONDS=${SETTLE_SECONDS:-5}
+
+vpn_is_up() { ip -o link show up | grep -qE "^[0-9]+: ${VPN_IF_PREFIX}"; }
+
+forticlient_dns_in_place() {
+    [[ -e $BACKUP || -L $BACKUP ]] && return 0
+    [[ ! -L $RESOLV_CONF ]] && grep -qi forticlient "$RESOLV_CONF" 2>/dev/null
+}
+
+restore_if_stale() {
+    if vpn_is_up || [[ ! -e $STUB ]]; then return 0; fi
+    echo "VPN is down; $RESOLV_CONF is: $(ls -l "$RESOLV_CONF" 2>&1)"
+    if ! forticlient_dns_in_place; then return 0; fi
+    echo "FortiClient left its DNS configuration behind, restoring $RESOLV_CONF -> $STUB"
+    ln -sfn "$STUB" "$RESOLV_CONF"
+    rm -f "$BACKUP"
+    resolvectl flush-caches || true
+}
+
+# Covers a VPN that died while this service was not running
+restore_if_stale
+
+ip -o monitor link | grep --line-buffered -E "[0-9]+: ${VPN_IF_PREFIX}" | while read -r _; do
+    # Swallow the burst of events until the link has been quiet for SETTLE_SECONDS
+    while read -r -t "$SETTLE_SECONDS" _; do :; done
+    restore_if_stale
+done
