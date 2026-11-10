@@ -197,15 +197,8 @@ Section "Extensions"
 EndSection
 EOF
 
-# Natural (reversed) touchpad scrolling
-cat << 'EOF' > /etc/X11/xorg.conf.d/30-touchpad.conf
-Section "InputClass"
-    Identifier "touchpad"
-    MatchIsTouchpad "on"
-    Driver "libinput"
-    Option "NaturalScrolling" "true"
-EndSection
-EOF
+# Touchpad: natural scrolling, and pick click button by finger count (not by press position)
+cp "$USER_HOME/.config/X11/COPY_OF_X11_TRACKPAD_CONFIG_THIS_DOES_NOT_DO_ANYTHING.conf" /etc/X11/xorg.conf.d/30-touchpad.conf
 
 # Silence the motherboard PC speaker beep (it bypasses the sound card, so mute has no effect)
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
