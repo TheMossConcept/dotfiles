@@ -24,6 +24,8 @@ return {
   },
   {
     "antosha417/nvim-lsp-file-operations",
+    -- 1303184 asserts the logfile exists every 30s before anything has been logged
+    commit = "cab4c48",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-neo-tree/neo-tree.nvim", -- makes sure that this loads after Neo-tree.

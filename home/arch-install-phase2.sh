@@ -81,7 +81,7 @@ npm install -g npm neovim
 mkdir -p ~/.docker
 [[ -f ~/.docker/config.json ]] || echo '{ "credsStore": "pass" }' > ~/.docker/config.json
 
-# Enable Danish letters and other Unicode characters produced by keyd
+# Enable Unicode characters produced by keyd (Danish letters use AltGr instead)
 ln -sf /usr/share/keyd/keyd.compose ~/.XCompose
 
 # Pre-install neovim plugins headlessly

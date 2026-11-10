@@ -162,6 +162,18 @@ cp "$USER_HOME/.config/keyd/COPY_OF_KEYD_CONFIG_THIS_DOES_NOT_DO_ANYTHING.conf" 
 systemctl enable keyd
 systemctl restart keyd
 
+# The keyd config sends Danish letters as AltGr keys, which this layout provides
+install -d /etc/X11/xorg.conf.d
+cat << 'EOF' > /etc/X11/xorg.conf.d/00-keyboard.conf
+Section "InputClass"
+    Identifier "system-keyboard"
+    MatchIsKeyboard "on"
+    Option "XkbLayout" "us"
+    Option "XkbModel" "pc105"
+    Option "XkbVariant" "altgr-intl"
+EndSection
+EOF
+
 # Make the fonts (incl. the AUR powerlevel10k font) available to X11
 fc-cache -f
 if [[ -d /usr/share/fonts/TTF ]]; then (cd /usr/share/fonts/TTF && mkfontscale && mkfontdir); fi
