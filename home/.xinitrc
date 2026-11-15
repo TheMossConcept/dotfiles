@@ -41,4 +41,9 @@ fi
 # Disable the X bell
 /usr/bin/xset b off
 
-exec i3
+# Pick the i3 setup based on how many screens are connected
+if [ "$(xrandr --query | grep -c ' connected')" -ge 2 ]; then
+    exec i3 -c "$HOME/.config/i3/config-dual"
+else
+    exec i3 -c "$HOME/.config/i3/config-single"
+fi

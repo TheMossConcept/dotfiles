@@ -1,10 +1,9 @@
 return {
   "yetone/avante.nvim",
-  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-  -- ⚠️ must add this setting! ! !
-  build = vim.fn.has("win32") ~= 0
-  and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
-  or "make",
+  -- Download the prebuilt native libraries. A plain `make` now compiles the whole Rust
+  -- workspace, which exceeds lazy.nvim's 120s process timeout.
+  -- To build from source instead, run `:AvanteBuild source=true`.
+  build = function() require("avante.api").build({ source = false }) end,
   event = "VeryLazy",
   version = false, -- Never set this value to "*"! Never!
   ---@module 'avante'

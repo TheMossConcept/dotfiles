@@ -1,0 +1,21 @@
+# i3 config file (v4)
+#
+# Setup for two (or more) screens. Selected by ~/.xinitrc.
+# Everything shared with the single-screen setup lives in ~/.config/i3/config.
+# Note: variables set in the included file (e.g. $ws1) cannot be used here,
+# so workspaces are referred to by their literal names.
+
+include ~/.config/i3/config
+
+workspace "1" output "DisplayPort-1"
+workspace "2" output "DisplayPort-2"
+assign [class="Google-chrome"] "1"
+assign [class="firefox"] "1"
+assign [class="UXTerm"] "2"
+
+exec firefox --first-startup https://mail.google.com/mail/u/2/#inbox https://mail.google.com/mail/u/1/#inbox
+exec firefox --new-window https://app.todoist.com/app/today
+# Start up new exterm terminal with a tmux session called main
+exec --no-startup-id xterm -e tmux new-session -A -s main
+# Set up screens correctly. DisplayPort-2 is vertical, so we want that set up correctly straight away
+exec --no-startup-id xrandr --output DisplayPort-1 --auto --primary --output DisplayPort-2 --auto --rotate left --right-of DisplayPort-1

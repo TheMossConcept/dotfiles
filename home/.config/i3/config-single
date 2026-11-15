@@ -1,0 +1,18 @@
+# i3 config file (v4)
+#
+# Setup for a single screen. Selected by ~/.xinitrc.
+# Everything shared with the multi-screen setup lives in ~/.config/i3/config.
+# Note: variables set in the included file (e.g. $ws1) cannot be used here,
+# so workspaces are referred to by their literal names.
+
+include ~/.config/i3/config
+
+# Terminals on workspace 1, browsers on workspace 2
+assign [class="UXTerm"] "1"
+assign [class="Google-chrome"] "2"
+assign [class="firefox"] "2"
+
+# One browser window holding all the tabs
+exec firefox --first-startup https://mail.google.com/mail/u/2/#inbox https://mail.google.com/mail/u/1/#inbox https://app.todoist.com/app/today
+# Start up new exterm terminal with a tmux session called main
+exec --no-startup-id xterm -e tmux new-session -A -s main
