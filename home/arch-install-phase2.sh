@@ -47,6 +47,9 @@ gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(cat /etc/hostname 2>/dev/null ||
 # Pull secrets after having authenticated with GitHub
 [[ -d ~/.password-store ]] || git clone https://github.com/TheMossConcept/Secrets.git ~/.password-store
 
+# Install host extension to enable pass Firefox extension to communicate with pass on the terminal
+curl -sSL https://codeberg.org/PassFF/passff-host/releases/download/latest/install_host_app.sh | bash -s -- firefox
+
 # Set up ngrok authentication
 ngrok config add-authtoken "$(pass show AI_development_team/ngrok_auth_token)"
 
