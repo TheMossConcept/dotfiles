@@ -7,8 +7,10 @@
 
 include ~/.config/i3/config
 
-workspace "1" output "DisplayPort-1"
-workspace "2" output "DisplayPort-2"
+# ~/.xinitrc has already laid out the screens and marked one as primary.
+# Workspace 1 is pinned to the primary screen; i3 then puts the next free
+# workspace (2) on the other screen, whatever its connector is called.
+workspace "1" output primary
 assign [class="Google-chrome"] "1"
 assign [class="firefox"] "1"
 assign [class="UXTerm"] "2"
@@ -17,5 +19,3 @@ exec firefox --first-startup https://mail.google.com/mail/u/2/#inbox https://mai
 exec firefox --new-window https://app.todoist.com/app/today
 # Start up new exterm terminal with a tmux session called main
 exec --no-startup-id xterm -e tmux new-session -A -s main
-# Set up screens correctly. DisplayPort-2 is vertical, so we want that set up correctly straight away
-exec --no-startup-id xrandr --output DisplayPort-1 --auto --primary --output DisplayPort-2 --auto --rotate left --right-of DisplayPort-1

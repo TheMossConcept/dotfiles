@@ -41,8 +41,19 @@ fi
 # Disable the X bell
 /usr/bin/xset b off
 
-# Pick the i3 setup based on how many screens are connected
-if [ "$(xrandr --query | grep -c ' connected')" -ge 2 ]; then
+# Pick the i3 setup based on which screens are connected
+outputs=$(xrandr --query | awk '$2 == "connected" { print $1 }')
+primary=$(echo "$outputs" | sed -n 1p)
+secondary=$(echo "$outputs" | sed -n 2p)
+
+if [ -n "$secondary" ]; then
+    # The first connected output becomes primary, the second goes to its right.
+    # Works for any connector names (DisplayPort-N, HDMI-N, eDP-N, ...).
+    rotate=normal
+    # The desktop's second DisplayPort monitor is mounted vertically
+    [ "$secondary" = "DisplayPort-2" ] && rotate=left
+    xrandr --output "$primary" --auto --primary \
+           --output "$secondary" --auto --rotate "$rotate" --right-of "$primary"
     exec i3 -c "$HOME/.config/i3/config-dual"
 else
     exec i3 -c "$HOME/.config/i3/config-single"
