@@ -36,3 +36,14 @@ fi
 
 source "$_SECRETS_ENV"
 unset _SECRETS_ENV
+
+# Start X automatically when logging in on the first virtual console. This sits
+# at the end so the gpg passphrase has been entered and the secrets above are
+# part of the X session's environment. It is skipped when X is already running
+# (DISPLAY is set at the top of this file), on other consoles, over SSH and in
+# login shells inside X (e.g. tmux), so tty2 remains a plain shell for recovery.
+# Deliberately not `exec`: leaving i3 drops back to this shell instead of
+# logging out.
+if [[ "$(uname)" == "Linux" && -z "$DISPLAY" && "$XDG_VTNR" == 1 ]] && (( $+commands[startx] )); then
+  startx
+fi
