@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Pins bitbucket.org (web, HTTPS git) and ssh.bitbucket.org (SSH git) to
+# addresses the Nexus FortiClient VPN actually forwards, so the workspace IP
+# allowlist sees the VPN egress address.
+#
+# Run as your normal user (it needs your SSH key; sudo is used only to write
+# /etc/hosts):
+#   after connecting the VPN:    bitbucket-vpn-fix
+#   after disconnecting:         bitbucket-vpn-fix   (removes the pins)
+set -euo pipefail
+
+export WEB=bitbucket.org
+export SSH=ssh.bitbucket.org
+HOSTS=/etc/hosts
+
+# An address qualifies for $WEB only if it presents a valid certificate for it.
+probe_web() {
+  curl -4 -s -o /dev/null --connect-timeout 2 --max-time 5 \
+    --resolve "$WEB:443:$1" "https://$WEB/" && echo "$1" || true
+}
+# An address qualifies for $SSH only if it has Bitbucket's known host key and
+# accepts your SSH key (the web addresses share the host key but refuse git).
+probe_ssh() {
+  ssh -n -T -o HostName="$1" -o HostKeyAlias="$SSH" -o BatchMode=yes \
+    -o ConnectTimeout=3 "git@$SSH" >/dev/null 2>&1 && echo "$1" || true
+}
+export -f probe_web probe_ssh
+
+pins=""
+dev=$(ip -o link show | awk -F': ' '$2 ~ /^fctvpn/ {print $2; exit}')
+if [[ -n $dev ]]; then
+  # Candidates are the public single-address routes the VPN pushed; nothing is
+  # hardcoded, so the list can change on either side.
+  candidates=$(ip -4 route show dev "$dev" | awk '$1 !~ /\// {print $1}' |
+    grep -vE '^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)' || true)
+
+  for pair in "probe_web $WEB" "probe_ssh $SSH"; do
+    read -r probe host <<<"$pair"
+    ip=$(xargs -r -P 16 -I{} bash -c "$probe {}" <<<"$candidates" | sort -V | head -n1)
+    if [[ -n $ip ]]; then
+      pins+="$ip $host"$'\n'
+      echo "Pinning $host to $ip via $dev"
+    else
+      echo "No VPN-routed address serves $host; leaving it unpinned" >&2
+    fi
+  done
+else
+  echo "VPN is down: removing pins"
+fi
+
+# Drop previous pins (first match wins in /etc/hosts), then add the new ones.
+sudo sed -i -E '/[[:space:]](ssh\.)?bitbucket\.org([[:space:]]|$)/d' "$HOSTS"
+[[ -z $pins ]] || printf '%s' "$pins" | sudo tee -a "$HOSTS" >/dev/null
