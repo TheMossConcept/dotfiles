@@ -8,7 +8,8 @@
 include ~/.config/i3/config
 
 # Terminals on workspace 1, browsers on workspace 2
-assign [class="UXTerm"] "1"
+# xterm's window class is XTerm, uxterm's is UXTerm
+assign [class="^(XTerm|UXTerm)$"] "1"
 assign [class="Google-chrome"] "2"
 assign [class="firefox"] "2"
 

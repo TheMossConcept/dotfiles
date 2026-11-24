@@ -7,13 +7,16 @@
 
 include ~/.config/i3/config
 
-# ~/.xinitrc has already laid out the screens and marked one as primary.
-# Workspace 1 is pinned to the primary screen; i3 then puts the next free
-# workspace (2) on the other screen, whatever its connector is called.
+# ~/.xinitrc has already laid out the screens and marked one as primary, so
+# the screens are referred to by role rather than by connector name. Both
+# workspaces are pinned explicitly: where a window ends up must not depend on
+# which screen happens to have focus (i.e. hold the mouse pointer) at startup.
 workspace "1" output primary
+workspace "2" output nonprimary
 assign [class="Google-chrome"] "1"
 assign [class="firefox"] "1"
-assign [class="UXTerm"] "2"
+# xterm's window class is XTerm, uxterm's is UXTerm
+assign [class="^(XTerm|UXTerm)$"] "2"
 
 exec firefox --first-startup https://mail.google.com/mail/u/2/#inbox https://mail.google.com/mail/u/1/#inbox
 exec firefox --new-window https://app.todoist.com/app/today
