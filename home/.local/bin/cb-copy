@@ -4,14 +4,47 @@
 # Uses xsel over xclip because xclip forks a background process to hold
 # the X selection, which can hold PTY file descriptors and cause terminal
 # rendering issues in neovim.
+#
+# Never fails silently: if the clipboard cannot be written, the reason is
+# printed to stderr and, inside tmux, shown in the status line.
 
-# Inside tmux, DISPLAY may be missing from the pane's environment even
-# though tmux knows it. Pull it from tmux's global environment.
-if [ -z "$DISPLAY" ] && command -v tmux >/dev/null 2>&1 && [ -n "$TMUX" ]; then
-  eval "$(tmux show-environment -s DISPLAY 2>/dev/null)" || true
+fail() {
+  echo "cb-copy: $1" >&2
+  if [ -n "$TMUX" ] && command -v tmux >/dev/null 2>&1; then
+    tmux display-message -d 5000 "cb-copy failed: $1" 2>/dev/null
+  fi
+  exit 1
+}
+
+if [ "$(uname)" = Darwin ]; then
+  pbcopy || fail "pbcopy exited with an error"
+  exit 0
 fi
 
-case "$(uname)" in
-  Darwin) exec pbcopy ;;
-  *)      exec xsel --clipboard --input ;;
-esac
+command -v xsel >/dev/null 2>&1 || fail "xsel is not installed"
+
+# stdin can only be read once, but several displays may have to be tried.
+umask 077
+buffer=$(mktemp) || fail "could not create a temporary file"
+trap 'rm -f "$buffer"' EXIT INT TERM
+cat >"$buffer"
+
+# Candidate displays, most trustworthy first. The inherited DISPLAY can be
+# missing or stale (X restarted, or tmux was last attached to over SSH), in
+# which case tmux's session and global environments are consulted.
+tmux_display() {
+  [ -n "$TMUX" ] && command -v tmux >/dev/null 2>&1 || return 0
+  tmux show-environment "$@" DISPLAY 2>/dev/null | sed -n 's/^DISPLAY=//p'
+}
+
+tried=
+for display in "$DISPLAY" "$(tmux_display)" "$(tmux_display -g)" :0; do
+  [ -n "$display" ] || continue
+  case " $tried " in *" $display "*) continue ;; esac
+  tried="$tried $display"
+  if DISPLAY=$display xsel --clipboard --input <"$buffer" 2>/dev/null; then
+    exit 0
+  fi
+done
+
+fail "no usable X display (tried:${tried:- none})"
