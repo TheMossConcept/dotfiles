@@ -1,5 +1,5 @@
 [Unit]
-Description=Restore DNS after a FortiClient VPN session ends without cleaning up
+Description=Keep DNS and IPv6 routing consistent with the FortiClient VPN's state
 After=systemd-resolved.service
 
 [Service]

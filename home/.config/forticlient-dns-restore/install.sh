@@ -19,6 +19,14 @@ UNIT_TARGET=/etc/systemd/system/forticlient-dns-restore.service
 UNIT=forticlient-dns-restore.service
 
 # Copied (not linked) so that a root service never runs a script the user can modify
+# Superseded by the service: networkd drop-ins meant to block Atlassian IPv6, whose route
+# networkd never actually installed. Removed so the two cannot fight over the same route.
+if compgen -G '/etc/systemd/network/*.network.d/atlassian-ipv4-only.conf' > /dev/null; then
+    rm -f /etc/systemd/network/*.network.d/atlassian-ipv4-only.conf
+    rmdir --ignore-fail-on-non-empty /etc/systemd/network/*.network.d
+    networkctl reload
+fi
+
 install -m 755 "$SCRIPT_SOURCE" "$SCRIPT_TARGET"
 install -m 644 "$UNIT_SOURCE" "$UNIT_TARGET"
 systemctl daemon-reload

@@ -162,8 +162,9 @@ cp "$USER_HOME/.config/keyd/COPY_OF_KEYD_CONFIG_THIS_DOES_NOT_DO_ANYTHING.conf" 
 systemctl enable keyd
 systemctl restart keyd
 
-# FortiClient leaves the VPN's DNS servers in /etc/resolv.conf when the gateway ends the
-# session, which breaks all DNS lookups until reboot. This service restores resolv.conf.
+# FortiClient leaves the VPN's DNS servers behind when the VPN goes down, and while it is up
+# DNS and IPv6 can send traffic for allowlisted services (Bitbucket) around the tunnel. This
+# service fixes both; see the script next to install.sh for details.
 bash "$USER_HOME/.config/forticlient-dns-restore/install.sh"
 
 # The keyd config sends Danish letters as AltGr keys, which this layout provides

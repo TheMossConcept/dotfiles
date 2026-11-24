@@ -1,9 +1,22 @@
 #!/bin/bash
-# FortiClient replaces /etc/resolv.conf with a file pointing at the VPN's DNS servers and
-# only puts the original back on a clean disconnect. When the session is ended by the
-# gateway (e.g. its 10 hour limit) the VPN-only servers stay in place and every DNS lookup
-# times out until reboot. This watches the VPN interface and restores systemd-resolved's
-# stub resolv.conf once the VPN is gone.
+# Works around three ways FortiClient's split tunnel misbehaves on systemd-resolved + networkd.
+# Watches the VPN interface and, once link events have settled, syncs the system to its state.
+#
+# While the VPN is up:
+#  - FortiClient swaps /etc/resolv.conf for a file listing the VPN's DNS servers. resolved then
+#    races those against the Wi-Fi link's servers, so names like bitbucket.org may resolve to
+#    addresses the tunnel has no route for (the gateway only routes the addresses *it* resolves)
+#    and the traffic bypasses the VPN. The VPN's DNS servers are therefore put on the VPN link
+#    with the "~." routing domain, which makes resolved use them exclusively.
+#  - The tunnel is IPv4 only, so IPv6 to IP-allowlisted services leaves via the home address
+#    and is refused. BLOCKED_IPV6 is made unreachable so applications fall back to IPv4.
+#
+# Once the VPN is down:
+#  - If the gateway ended the session (e.g. its 10 hour limit) FortiClient does not put the
+#    original resolv.conf back; it is restored to systemd-resolved's stub.
+#  - resolved keeps the VPN's DNS servers it read from FortiClient's resolv.conf even after the
+#    stub is back, and lookups time out against them. It is restarted to forget them.
+#
 # Installed to /usr/local/bin by arch-install.sh; run by forticlient-dns-restore.service.
 set -euo pipefail
 
@@ -11,31 +24,84 @@ RESOLV_CONF=${RESOLV_CONF:-/etc/resolv.conf}
 BACKUP=${BACKUP:-/etc/resolv.conf.forticlient.backup}
 STUB=${STUB:-/run/systemd/resolve/stub-resolv.conf}
 VPN_IF_PREFIX=${VPN_IF_PREFIX:-fctvpn}
-# Time to let link events settle, and FortiClient do its own restore, before checking
+# Space separated IPv6 prefixes of allowlisted services. Default: Atlassian (Bitbucket)
+BLOCKED_IPV6=${BLOCKED_IPV6:-2401:1d80::/32}
+# Time to let link events settle, and FortiClient finish its own setup/restore, before syncing
 SETTLE_SECONDS=${SETTLE_SECONDS:-5}
 
-vpn_is_up() { ip -o link show up | grep -qE "^[0-9]+: ${VPN_IF_PREFIX}"; }
+vpn_link() {
+    ip -o link show up | sed -nE "s/^[0-9]+: (${VPN_IF_PREFIX}[^:@]*).*/\1/p" | head -n 1
+}
 
-forticlient_dns_in_place() {
+# The nameservers FortiClient wrote to resolv.conf that are reached through the tunnel
+vpn_dns_servers() {
+    local link=$1 ns
+    if [[ -L $RESOLV_CONF || ! -f $RESOLV_CONF ]]; then return 0; fi
+    awk '$1 == "nameserver" { print $2 }' "$RESOLV_CONF" | while read -r ns; do
+        if ip route get "$ns" 2>/dev/null | grep -qw "dev $link"; then echo "$ns"; fi
+    done
+}
+
+set_ipv6_block() {
+    local action=$1 prefix
+    for prefix in $BLOCKED_IPV6; do
+        case $action in
+            add) ip -6 route replace unreachable "$prefix" || echo "Could not block $prefix" ;;
+            remove) ip -6 route del unreachable "$prefix" 2>/dev/null || true ;;
+        esac
+    done
+}
+
+configure_vpn() {
+    local link=$1 servers
+    set_ipv6_block add
+    mapfile -t servers < <(vpn_dns_servers "$link")
+    if ((${#servers[@]} == 0)); then
+        echo "VPN is up on $link but $RESOLV_CONF lists no DNS servers routed through it; leaving DNS alone"
+        return 0
+    fi
+    echo "VPN is up on $link; blocking IPv6 to $BLOCKED_IPV6 and resolving everything via ${servers[*]}"
+    resolvectl dns "$link" "${servers[@]}" || echo "Could not set DNS servers on $link"
+    resolvectl domain "$link" '~.' || echo "Could not set routing domain on $link"
+    resolvectl flush-caches || true
+}
+
+forticlient_resolv_conf_in_place() {
     [[ -e $BACKUP || -L $BACKUP ]] && return 0
     [[ ! -L $RESOLV_CONF ]] && grep -qi forticlient "$RESOLV_CONF" 2>/dev/null
 }
 
-restore_if_stale() {
-    if vpn_is_up || [[ ! -e $STUB ]]; then return 0; fi
-    echo "VPN is down; $RESOLV_CONF is: $(ls -l "$RESOLV_CONF" 2>&1)"
-    if ! forticlient_dns_in_place; then return 0; fi
-    echo "FortiClient left its DNS configuration behind, restoring $RESOLV_CONF -> $STUB"
-    ln -sfn "$STUB" "$RESOLV_CONF"
-    rm -f "$BACKUP"
-    resolvectl flush-caches || true
+# resolved lists no global servers of its own (resolved.conf sets none), so any that show up
+# while resolv.conf is the stub are leftovers from FortiClient's resolv.conf
+resolved_has_leftover_dns() {
+    [[ $RESOLV_CONF -ef $STUB ]] && resolvectl dns | grep -qE '^Global: *[^ ]'
 }
 
-# Covers a VPN that died while this service was not running
-restore_if_stale
+clean_up_after_vpn() {
+    set_ipv6_block remove
+    if [[ ! -e $STUB ]]; then return 0; fi
+    if forticlient_resolv_conf_in_place; then
+        echo "FortiClient left its resolv.conf behind, restoring $RESOLV_CONF -> $STUB"
+        ln -sfn "$STUB" "$RESOLV_CONF"
+        rm -f "$BACKUP"
+    fi
+    if resolved_has_leftover_dns; then
+        echo "systemd-resolved still uses the VPN's DNS servers ($(resolvectl dns | head -n 1)), restarting it"
+        systemctl restart systemd-resolved || echo "Could not restart systemd-resolved"
+    fi
+}
+
+sync_with_vpn_state() {
+    local link
+    link=$(vpn_link)
+    if [[ -n $link ]]; then configure_vpn "$link"; else clean_up_after_vpn; fi
+}
+
+# Covers a VPN that came up or died while this service was not running
+sync_with_vpn_state
 
 ip -o monitor link | grep --line-buffered -E "[0-9]+: ${VPN_IF_PREFIX}" | while read -r _; do
     # Swallow the burst of events until the link has been quiet for SETTLE_SECONDS
     while read -r -t "$SETTLE_SECONDS" _; do :; done
-    restore_if_stale
+    sync_with_vpn_state
 done
